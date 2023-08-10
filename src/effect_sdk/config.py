@@ -7,6 +7,7 @@ presets = {
         'stake_contract': 'efxstake1111',
         'feepool_contract': 'efxfeepool11',
         'proposals_contract': 'efxproposals',
+        'ipfs_url': 'https://ipfs.effect.ai',
     },
     'mainnet': {
         'tasks_contract': 'force.efx',

@@ -1,9 +1,9 @@
 import pydantic
 import pyntelope
 
-
 from . import config
 from . import types
+from .ipfs import IPFS
 
 class Client:
     def __init__(
@@ -22,6 +22,7 @@ class Client:
         else:
             raise ValueError("The network should be 'jungle4' or 'mainnet'.")
         self.config = config.presets[self.network_name]
+        self.ipfs = IPFS(self.config['ipfs_url'])
 
     def require_auth(self):
         if self.auth == None:
