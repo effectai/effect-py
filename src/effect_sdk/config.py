@@ -8,6 +8,7 @@ presets = {
         'feepool_contract': 'efxfeepool11',
         'proposals_contract': 'efxproposals',
         'ipfs_url': 'https://ipfs.effect.ai',
+        'token_symbol': '4,EFX',
     },
     'mainnet': {
         'tasks_contract': 'force.efx',
