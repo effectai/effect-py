@@ -11,6 +11,7 @@ Under development. This only contains core functionality and is not yet packaged
 This library is not yet released and should can only be used to experiment on locally:
 
 ```
+$ python3 -m build
 $ python3 -m pip install -e ./
 $ python3 examples/create_campaign.py
 ```
