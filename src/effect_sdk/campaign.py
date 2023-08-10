@@ -1,8 +1,23 @@
 import pyntelope
 from pyntelope.types import primitives
 from . import types
+from pydantic import BaseModel
+from typing import Optional
 
-def create(client, ipfs_hash: str, reward: str, task_time: int = 3600):
+class Campaign(BaseModel):
+    version: float = 1.1
+    title: str
+    description: str
+    instructions: str
+    template: str
+    input_schema: Optional[str]
+    output_schema: Optional[str]
+    image: Optional[str]
+    category: Optional[str]
+    example_task: Optional[dict]
+    estimated_time: Optional[int]
+
+def mkcampaign_action(client, ipfs_hash: str, reward: str, task_time: int):
     client.require_auth()
 
     v1 = types.Variant.from_dict(
@@ -19,8 +34,10 @@ def create(client, ipfs_hash: str, reward: str, task_time: int = 3600):
          pyntelope.types.Name(client.config['token_contract'])]
     )
 
+    # TOOD: v5 is qualifications
     v5 = pyntelope.types.Array.from_dict([], type_=types.Struct)
     v6 = pyntelope.types.Name(client.auth.actor)
+    # TODO: v7 is the optional BSC signature
     v7 = pyntelope.types.Uint8(0)
 
     data = [
@@ -38,6 +55,13 @@ def create(client, ipfs_hash: str, reward: str, task_time: int = 3600):
         data=data,
         authorization=[client.auth],
     )
+
+    return action
+
+def create(client, campaign_data: dict, reward: str = "0.0000 EFX", task_time: int = 3600):
+    camp = Campaign(**campaign_data).dict()
+    ipfs_hash = client.ipfs.pin_json(camp)
+    action = mkcampaign_action(client, ipfs_hash, reward, task_time)
     resp = client.send_transaction(actions=[action])
     return resp
 
