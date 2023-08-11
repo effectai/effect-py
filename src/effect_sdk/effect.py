@@ -3,6 +3,7 @@ import pyntelope
 
 from . import config
 from . import types
+from . import vaccount
 from .ipfs import IPFS
 
 class Client:
@@ -31,6 +32,8 @@ class Client:
     def login(self, actor, permission, key):
         self.auth = pyntelope.Authorization(actor=actor, permission=permission)
         self.__key = key
+        self.config['tasks_vaccount_id'] = vaccount.get(self, self.config['tasks_contract'])
+        self.config['auth_vaccount_id'] = vaccount.get(self, actor)
 
     def get_settings(self):
         return self.net.get_table_rows(
