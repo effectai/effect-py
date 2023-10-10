@@ -5,6 +5,7 @@ from . import config
 from . import types
 from . import vaccount
 from .ipfs import IPFS
+from pyntelope.types import Uint32, Uint64
 
 class Client:
     def __init__(
@@ -47,6 +48,18 @@ class Client:
             self.config['tasks_contract'],
             "campaign",
             self.config['tasks_contract'],
+        )
+
+    def get_batches(self, campaign_id: int):
+        lower = bytes(Uint32(0)) + bytes(Uint32(campaign_id))
+        upper = bytes(Uint32(4294967295)) + bytes(Uint32(campaign_id))
+
+        return self.net.get_table_rows(
+            self.config['tasks_contract'],
+            "batch",
+            self.config['tasks_contract'],
+            lower_bound = Uint64.from_bytes(lower).value,
+            upper_bound = Uint64.from_bytes(upper).value,
         )
 
     def send_transaction(self, actions):
