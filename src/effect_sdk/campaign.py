@@ -132,7 +132,8 @@ def create_batch(client, campaign_id:int, data: list, reward: str, repetitions: 
     client.require_auth()
     ipfs_hash = client.ipfs.pin_json(data)
 
-    last_batch_id = client.get_batches(campaign_id)[-1]['id']
+    batches = client.get_batches(campaign_id)
+    last_batch_id = -1 if not batches else batches[-1]
     batch_id = last_batch_id + 1
     batch_pk = get_batch_pk(batch_id, campaign_id)
 
