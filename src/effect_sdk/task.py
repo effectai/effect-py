@@ -37,6 +37,8 @@ def get_reservation(client, campaign_id:int):
         lower_bound = idx,
         upper_bound = idx
     )
+    if not rows:
+        raise ValueError("No reservation found")
     return rows[0]
 
 def submit(client, campaign_id:int, data:str):

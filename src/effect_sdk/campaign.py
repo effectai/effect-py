@@ -1,5 +1,5 @@
 import pyntelope
-from pyntelope.types import primitives, Uint32, Uint64, Uint8
+from pyntelope.types import primitives, Uint32, Uint64, Uint8, Asset, Name, String
 from . import types
 from pydantic import BaseModel
 from typing import Optional
@@ -127,22 +127,50 @@ def publishbatch_action(client, batch_pk: int, num_tasks: int):
     )
     return action
 
+# TODO: move this action to a more generic place in the codebase
+def make_transfer_action(client, from_acc: str, to_acc: str, quantity: str, memo: str):
+    client.require_auth()
+
+    data = [
+        pyntelope.Data(name='from', value=Name(from_acc)),
+        pyntelope.Data(name='to', value=Name(to_acc)),
+        pyntelope.Data(name='quantity', value=Asset(quantity)),
+        pyntelope.Data(name='memo', value=String(memo))
+    ]
+
+    action = pyntelope.Action(
+        account=client.config['token_contract'],
+        name='transfer',
+        data=data,
+        authorization=[client.auth],
+    )
+
+    return action
+
+
+# Reward is per task
 def create_batch(client, campaign_id:int, data: list, reward: str, repetitions: int = 1):
     # TOOD: auto determine reward
     client.require_auth()
     ipfs_hash = client.ipfs.pin_json(data)
 
     batches = client.get_batches(campaign_id)
-    last_batch_id = -1 if not batches else batches[-1]
+    last_batch_id = -1 if not batches else batches[-1]['id']
     batch_id = last_batch_id + 1
     batch_pk = get_batch_pk(batch_id, campaign_id)
 
+    reward_asset = Asset(reward)
+    total_reward_value = (int(reward_asset.get_int_digits()) + 1) * len(data) * repetitions
+    total_reward = str(total_reward_value) \
+        + '.' + '0' * reward_asset.get_precision() \
+        + ' ' + reward_asset.get_name()
+
     create_action = mkbatch_action(client, batch_id, campaign_id, ipfs_hash, repetitions)
-    vtransfer_action = vaccount.vtransfer_action(
+    transfer_action = make_transfer_action(
         client,
-        client.config['auth_vaccount_id'],
-        client.config['tasks_vaccount_id'],
-        reward,
+        client.auth.actor,
+        client.config['tasks_contract'],
+        total_reward,
         str(batch_pk)
     )
     publish_action = publishbatch_action(client, batch_pk, len(data))

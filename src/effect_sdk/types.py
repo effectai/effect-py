@@ -38,3 +38,10 @@ class Struct(Primitive):
     def from_bytes(cls, bytes_: bytes, /, type_=type):
         """Create instance from bytes."""
         return None
+
+
+# TODO: Add ExtendedAsset type
+# A work around for the time being is to use a Struct:
+# types.Struct([Asset(quantity), Name(client.config['token_contract'])])
+# class ExtendedAsset(Composte):
+    # value: bytes
