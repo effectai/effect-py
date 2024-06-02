@@ -1,5 +1,6 @@
 from pyntelope.types.base import Composte, Primitive
 
+
 class Variant(Composte):
     value: bytes
     idx: int
@@ -10,7 +11,6 @@ class Variant(Composte):
         value = d[1]
         idx = types_.index(type_)
         return cls(value=bytes(value), idx=idx)
-
 
     def __bytes__(self):
         """Convert instance to bytes."""
@@ -24,12 +24,13 @@ class Variant(Composte):
         """Create instance from bytes."""
         return None
 
+
 class Struct(Primitive):
     value: tuple
 
     def __bytes__(self):
         """Convert instance to bytes."""
-        bytes_ = b''
+        bytes_ = b""
         for v in self.value:
             bytes_ += bytes(v)
         return bytes_
@@ -44,4 +45,4 @@ class Struct(Primitive):
 # A work around for the time being is to use a Struct:
 # types.Struct([Asset(quantity), Name(client.config['token_contract'])])
 # class ExtendedAsset(Composte):
-    # value: bytes
+# value: bytes
