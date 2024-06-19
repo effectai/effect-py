@@ -1,6 +1,6 @@
 [project]
-name = "effectai"
-version = "0.0.2"
+name = 'effectai'
+version = '0.0.2'
 authors = [
   { name = 'Effect AI', email = 'ops@effect.ai' }
 ]

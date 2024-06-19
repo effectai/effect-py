@@ -1,1 +1,1 @@
-from effectai.effect import Client
+from effectai.client import Client

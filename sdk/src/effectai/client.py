@@ -7,6 +7,7 @@ from effectai import vaccount
 from effectai.ipfs import IPFS
 from pyntelope.types import Uint32, Uint64
 
+
 class Client:
     def __init__(self, net: str = "jungle4"):
         auth = None

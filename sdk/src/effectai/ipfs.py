@@ -1,6 +1,7 @@
 import json
 import httpx
 
+
 class IPFS:
     def __init__(self, url):
         self._url = url
