@@ -1,3 +1,4 @@
 -e ../sdk
 click
 requests
+pyyaml
