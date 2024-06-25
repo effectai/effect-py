@@ -44,7 +44,7 @@ def chunks(lst, n):
 @click.option("--outfile", help="CSV file name of the output.")
 def upload_ipfs(dir, outfile):
     """Upload a directory to ipfs."""
-    files_per_batch = 2
+    files_per_batch = 50
     num_files = 0
     batches = list()
     for batch in chunks(os.listdir(dir), files_per_batch):
