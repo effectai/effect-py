@@ -58,10 +58,11 @@ def upload_ipfs(dir, outfile):
     num_batches = math.ceil(num_files / files_per_batch)
     click.echo(f"Uploading {num_files} files found in {dir} in {num_batches} batches...")
     input("Press Enter to continue...")
-    
+
     all_responses = ''
-    for batch in batches:
-        resp = requests.post("https://ipfs.effect.ai/api/v0/add?pin=true", files=batch)
+    for i, batch in enumerate(batches):
+        click.echo(f"> Uploading batch {i}")
+        resp = requests.post(ipfs_url, files=batch)
         all_responses += resp.text
 
     hashes = list()
