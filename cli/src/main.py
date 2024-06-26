@@ -39,6 +39,9 @@ def chunks(lst, n):
         yield lst[i:i + n]
 
 
+ipfs_url = "https://ipfs.effect.ai/api/v0/add?pin=true"
+
+
 @cli.command()
 @click.option("--dir", help="Campaign directory.")
 @click.option("--outfile", help="CSV file name of the output.")
@@ -54,9 +57,10 @@ def upload_ipfs(dir, outfile):
             batch_files[f] = item
         batches.append(batch_files)
         num_files += len(batch)
-            
+
     num_batches = math.ceil(num_files / files_per_batch)
-    click.echo(f"Uploading {num_files} files found in {dir} in {num_batches} batches...")
+    click.echo(f"Uploading {num_files} files found in {dir} " +
+               f"in {num_batches} batches...")
     input("Press Enter to continue...")
 
     all_responses = ''
@@ -74,6 +78,7 @@ def upload_ipfs(dir, outfile):
 
     with open(outfile, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
+        writer.writerow(('filename', 'cid'))
         for hash in hashes:
             writer.writerow(hash)
     print(f"Write data to {outfile}")
