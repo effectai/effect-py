@@ -1,3 +1,4 @@
+"""Effect AI CLI."""
 import math
 import re
 import json
@@ -10,33 +11,73 @@ import io
 from effectai import Client, campaign
 
 
-def parse_campaign(campaign_str):
+def parse_campaign(filename, campaign_str):
     """Extract and parse frontmatter and insturctions from campaign."""
     (_, frontmatter, instructions) = re.split("---+", campaign_str)
-    campaign = yaml.safe_load(frontmatter)
-    campaign['instructions'] = instructions
-    return campaign
+    camp = yaml.safe_load(frontmatter)
+    camp["instructions"] = instructions
+    if not camp["template"].startswith("<html>"):
+        template_path = os.path.dirname(filename) + "/" + camp["template"]
+        with open(template_path, "r") as f:
+            camp["template"] = f.read()
+    return camp
 
 
 @click.group()
 def cli():
+    """Start CLI entry point."""
     pass
 
 
 @cli.command()
 @click.option("--file", help="Directory the campaign is in.")
 def publish(file):
-    """Publish a campaign on Effect Network"""
+    """Publish a campaign on Effect Network."""
+    e = Client("jungle4")
+
+    e.login(
+        "efxefxefxefx",  # your account name
+        "active",  # account permission
+        os.environ["EOS_KEY"],
+    )
+
     with io.open(file, "r") as f:
         campaign_str = f.read()
-    campaign = parse_campaign(campaign_str)
-    print(campaign)
+    camp = parse_campaign(file, campaign_str)
+
+    res = campaign.create(e, camp)
+
+    print(res)
+
+
+@cli.command()
+@click.option("--file", help="CSV file for batch data.")
+@click.option("--campaign-id", help="Campaign ID.")
+def add_batch(file, campaign_id):
+    e = Client("jungle4")
+
+    e.login(
+        "efxefxefxefx",  # your account name
+        "active",  # account permission
+        os.environ["EOS_KEY"],
+    )
+
+    with open(file, "r") as f:
+        reader = csv.reader(f)
+        labels = next(reader, None)
+        data = [dict(zip(labels, line)) for line in reader]
+
+    click.echo(f"Creating batch with {len(data)} tasks")
+    input("Press Enter to continue...")
+
+    resp = campaign.create_batch(e, campaign_id, data, "0.0000 EFX")
+    print(resp)
 
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(lst), n):
-        yield lst[i:i + n]
+        yield lst[i : i + n]
 
 
 ipfs_url = "https://ipfs.effect.ai/api/v0/add?pin=true"
@@ -59,11 +100,10 @@ def upload_ipfs(dir, outfile):
         num_files += len(batch)
 
     num_batches = math.ceil(num_files / files_per_batch)
-    click.echo(f"Uploading {num_files} files found in {dir} " +
-               f"in {num_batches} batches...")
+    click.echo(f"Uploading {num_files} files found in {dir} " + f"in {num_batches} batches...")
     input("Press Enter to continue...")
 
-    all_responses = ''
+    all_responses = ""
     for i, batch in enumerate(batches):
         click.echo(f"> Uploading batch {i}")
         resp = requests.post(ipfs_url, files=batch)
@@ -78,7 +118,7 @@ def upload_ipfs(dir, outfile):
 
     with open(outfile, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(('filename', 'cid'))
+        writer.writerow(("filename", "cid"))
         for hash in hashes:
             writer.writerow(hash)
     print(f"Write data to {outfile}")

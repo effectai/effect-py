@@ -179,7 +179,7 @@ def create_batch(client, campaign_id: int, data: list, reward: str, repetitions:
     )
     publish_action = publishbatch_action(client, batch_pk, len(data))
 
-    resp = client.send_transaction([create_action, vtransfer_action, publish_action])
+    resp = client.send_transaction([create_action, transfer_action, publish_action])
     return resp
 
 
