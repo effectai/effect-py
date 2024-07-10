@@ -11,6 +11,14 @@ presets = {
         "token_symbol": "4,EFX",
     },
     "mainnet": {
-        "tasks_contract": "force.efx",
+        "tasks_contract": "tasks.efx",
+        "dao_contract": "theeffectdao",
+        "vaccount_contract": "vaccount.efx",
+        "token_contract": "effecttokens",
+        "stake_contract": "efxstakepool",
+        "feepool_contract": "feepool.efx",
+        "proposals_contract": "daoproposals",
+        "ipfs_url": "https://ipfs.effect.ai",
+        "token_symbol": "4,EFX",
     },
 }
