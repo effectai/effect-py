@@ -51,6 +51,32 @@ def publish(file):
 
 
 @cli.command()
+@click.option("--id", help="Primary ID of the campaign to edit.")
+@click.option("--file", help="Directory the campaign definition is in.")
+def edit(id, file):
+    """Edit an existing campaign on Effect Network."""
+    # e = Client("jungle4")
+    e = Client("mainnet")
+
+    e.login(
+        "efxtothemoon",  # your account name
+        "active",  # account permission
+        os.environ["EOS_KEY"],
+    )
+
+    with io.open(file, "r") as f:
+        campaign_str = f.read()
+    camp = parse_campaign(file, campaign_str)
+
+    # TODO: check that data in the campaign was updated
+    cur_campaign = campaign.get(e, id)
+
+    res = campaign.edit(e, id, camp)
+
+    print(res)
+
+
+@cli.command()
 @click.option("--file", help="CSV file for batch data.")
 @click.option("--campaign-id", help="Campaign ID.")
 def add_batch(file, campaign_id):
