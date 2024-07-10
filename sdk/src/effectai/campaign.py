@@ -59,10 +59,59 @@ def mkcampaign_action(client, ipfs_hash: str, reward: str, task_time: int):
     return action
 
 
+def editcampaign_action(client, campaign_id: int, ipfs_hash: str, reward: str):
+    client.require_auth()
+
+    v1 = types.Variant.from_dict(
+        ["name", pyntelope.types.Name(client.auth.actor)], types_=["address", "name"]
+    )
+
+    v2 = types.Struct([pyntelope.types.Uint8(0), pyntelope.types.String(ipfs_hash)])
+
+    # v3 = pyntelope.types.Uint32(task_time)
+    v4 = types.Struct(
+        [pyntelope.types.Asset(reward), pyntelope.types.Name(client.config["token_contract"])]
+    )
+
+    # TOOD: v5 is qualifications
+    v5 = pyntelope.types.Array.from_dict([], type_=types.Struct)
+    v6 = pyntelope.types.Name(client.auth.actor)
+    # TODO: v7 is the optional BSC signature
+    v7 = pyntelope.types.Uint8(0)
+
+    data = [
+        pyntelope.Data(name="campaign_id", value=pyntelope.types.Uint32(campaign_id)),
+        pyntelope.Data(name="owner", value=v1),
+        pyntelope.Data(name="content", value=v2),
+        pyntelope.Data(name="paused", value=pyntelope.types.Bool(False)),
+        # TODO: add max_task_time
+        # pyntelope.Data(name="max_task_time", value=v3),
+        pyntelope.Data(name="reward", value=v4),
+        pyntelope.Data(name="qualis", value=v5),
+        pyntelope.Data(name="payer", value=v6),
+    ]
+    action = pyntelope.Action(
+        account=client.config["tasks_contract"],
+        name="editcampaign",
+        data=data,
+        authorization=[client.auth],
+    )
+
+    return action
+
+
 def create(client, campaign_data: dict, reward: str = "0.0000 EFX", task_time: int = 3600):
     camp = Campaign(**campaign_data).dict()
     ipfs_hash = client.ipfs.pin_json(camp)
     action = mkcampaign_action(client, ipfs_hash, reward, task_time)
+    resp = client.send_transaction(actions=[action])
+    return resp
+
+
+def edit(client, campaign_id: int, campaign_data: dict, reward: str = "0.0000 EFX"):
+    camp = Campaign(**campaign_data).dict()
+    ipfs_hash = client.ipfs.pin_json(camp)
+    action = editcampaign_action(client, campaign_id, ipfs_hash, reward)
     resp = client.send_transaction(actions=[action])
     return resp
 
