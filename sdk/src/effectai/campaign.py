@@ -197,3 +197,13 @@ def delete_batch(client, campaign_id: int, batch_id: int):
     )
     resp = client.send_transaction([action])
     return resp
+
+
+def get(client, id):
+    return client.net.get_table_rows(
+        client.config["tasks_contract"],
+        "campaign",
+        client.config["tasks_contract"],
+        lower_bound=id,
+        upper_bound=id,
+    )[0]
